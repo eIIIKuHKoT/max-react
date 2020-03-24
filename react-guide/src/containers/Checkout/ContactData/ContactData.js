@@ -9,11 +9,58 @@ import Input from '../../../components/UI/Input/Input';
 class ContactData extends Component {
   state = {
     loading: false,
-    name: '',
-    email: '',
-    address: {
-      street: '',
-      postalCode: ''
+    orderForm: {
+      name: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Your Name..'
+        },
+        value: ''
+      },
+      street: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Your Address..'
+        },
+        value: ''
+      },
+      email: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'email',
+          placeholder: 'Your email..'
+        },
+        value: ''
+      },
+      zipCode: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Your Zip Code..'
+        },
+        value: ''
+      },
+      country: {
+        elementType: 'input',
+        elementConfig: {
+          type: 'text',
+          placeholder: 'Your Country..'
+        },
+        value: ''
+      },
+      deliveryMethod: {
+        elementType: 'select',
+        elementConfig: {
+          options: [
+            {value: 'vastest', displayValue: 'Fastest'},
+            {value: 'cheapest', displayValue: 'Cheapest'}
+          ]
+        },
+        value: ''
+      },
+      
     }
   };
   
@@ -23,15 +70,7 @@ class ContactData extends Component {
     const order = {
       ingredients: this.props.ingredients,
       price: this.props.price,
-      customer: {
-        name: 'John Doe',
-        address: {
-          street: 'Pobedu Ave',
-          zipCode: '14000',
-          country: 'Ukraine'
-        },
-        email: 'test@test.com',
-      },
+      
       deliveryMethod: 'fastest'
     };
     try {
@@ -44,12 +83,22 @@ class ContactData extends Component {
   };
   
   render() {
+    const formElements = [];
+    for (let key in this.state.orderForm) {
+      formElements.push({
+        id: key,
+        config: this.state.orderForm[key]
+      })
+    }
     let form =
       <form>
-        <Input inputеtype="input" type="text" name="name" placeholder="Your name"/>
-        <Input inputеtype="input" type="email" name="email" placeholder="Your email"/>
-        <Input inputеtype="input" type="text" name="street" placeholder="Your address"/>
-        <Input inputеtype="input" type="text" name="postalCode" placeholder="Your Postal Code"/>
+        {formElements.map(element => {
+          return <Input
+            key={element.id}
+            elementType={element.config.elementType}
+            elementConfig={element.config.elementConfig}
+            value={element.config.value} />
+        })}
         <Button buttonType="Success" clicked={this.orderHandler}>Order</Button>
       </form>;
     if (this.state.loading) {
