@@ -6,7 +6,7 @@ const order = (props) => {
   return (
     <div className={classes.Order}>
       <p>Ingredients: Salad(1)</p>
-      <p>Price: <srong>USD 4.45</srong></p>
+      <p>Price: <strong>USD 4.45</strong></p>
     </div>
   )
 };
