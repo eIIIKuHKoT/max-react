@@ -89,7 +89,7 @@ class ContactData extends Component {
           ]
         },
         validation: {},
-        value: '',
+        value: 'fastest',
         valid: true
       },
       
@@ -138,7 +138,6 @@ class ContactData extends Component {
     const order = {
       ingredients: this.props.ings,
       price: this.props.price,
-      deliveryMethod: 'fastest',
       orderData: formData
     };
     this.props.onOrderBurger(order);
