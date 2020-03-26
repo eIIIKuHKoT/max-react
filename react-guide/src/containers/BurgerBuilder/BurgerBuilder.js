@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
-
 import * as actions from '../../store/actions';
 import Auxiliary from '../../hoc/Auxiliary';
 import Burger from '../../components/Burger/Burger';
@@ -13,11 +12,9 @@ import Spinner from '../../components/UI/Spinner/Spinner';
 
 import axios from '../../axios-orders';
 
-
 class BurgerBuilder extends Component {
   state = {
     purchasing: false,
-    loading: false,
   };
   
   updatePurchaseState = (ingredients) => {
@@ -42,19 +39,13 @@ class BurgerBuilder extends Component {
     this.props.history.push('/checkout');
   };
   
-  /*componentDidMount() {
-    axios.get('/ingredients.json')
-      .then(response => {
-        this.setState({ingredients: response.data})
-      }).catch(err => {
-      console.log(err)
-    });
-  };*/
+  componentDidMount () {
+    this.props.onInitIngredients();
+  }
   
   render() {
     let orderSummary = null;
-    let burger = <Spinner/>;
-    
+    let burger = this.props.error ? <p>Something went wrong... Try again later</p> : <Spinner/>;
     if (this.props.ings) {
       let disabledInfo = {
         ...this.props.ings
@@ -80,9 +71,6 @@ class BurgerBuilder extends Component {
         ingredients={this.props.ings}
       />;
     }
-    if (this.state.loading) {
-      orderSummary = <Spinner/>
-    }
     return (
       <Auxiliary>
         <Modal
@@ -100,12 +88,14 @@ class BurgerBuilder extends Component {
 const mapStateToProps = state => {
   return {
     ings: state.ingredients,
-    price: state.totalPrice
+    price: state.totalPrice,
+    error: state.error
   }
 };
 
 const mapDispatchToProps = dispatch => {
   return {
+    onInitIngredients: () => dispatch(actions.initIngredients()),
     onIngredientAdded: (ingName) => dispatch(actions.addIngredient(ingName)),
     onIngredientRemoved: (ingName) => dispatch(actions.removeIngredient(ingName))
   }
