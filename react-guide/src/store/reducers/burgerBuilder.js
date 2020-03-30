@@ -22,38 +22,45 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case ADD_INGREDIENT:
-      const updatedIngredients = updateObject(state.ingredients, {
-        [action.ingredientName]: state.ingredients[action.ingredientName] + 1
-      });
-      return  updateObject(state, {
-        ingredients: updatedIngredients,
-        totalPrice: state.totalPrice + INGREDIENT_PRICES[action.ingredientName]
-      });
-    case REMOVE_INGREDIENT:
-      const updatedIng = updateObject(state.ingredients, {
-        [action.ingredientName]: state.ingredients[action.ingredientName] - 1
-      });
-      return  updateObject(state, {
-        ingredients: updatedIng,
-        totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName]
-      });
-    case SET_INGREDIENTS:
-      return updateObject(state, {
-        ingredients: {
-          salad: action.ingredients.salad,
-          bacon: action.ingredients.bacon,
-          cheese: action.ingredients.cheese,
-          meat: action.ingredients.meat
-        },
-        totalPrice: initialState.totalPrice,
-        error: false
-      });
-    case FETCH_INGREDIENTS_FAIL:
-      return updateObject(state, {error: true});
-    default:
-      return state;
+    case ADD_INGREDIENT: return addIngredient(state, action);
+    case REMOVE_INGREDIENT: return removeIngredient(state, action);
+    case SET_INGREDIENTS: return setIngredients(state, action);
+    case FETCH_INGREDIENTS_FAIL: return updateObject(state, {error: true});
+    default: return state;
   }
+};
+
+const setIngredients = (state, action) => {
+  return updateObject(state, {
+    ingredients: {
+      salad: action.ingredients.salad,
+      bacon: action.ingredients.bacon,
+      cheese: action.ingredients.cheese,
+      meat: action.ingredients.meat
+    },
+    totalPrice: initialState.totalPrice,
+    error: false
+  });
+};
+
+const addIngredient = (state, action) => {
+  const updatedIngredients = updateObject(state.ingredients, {
+    [action.ingredientName]: state.ingredients[action.ingredientName] + 1
+  });
+  return  updateObject(state, {
+    ingredients: updatedIngredients,
+    totalPrice: state.totalPrice + INGREDIENT_PRICES[action.ingredientName]
+  });
+};
+
+const removeIngredient = (state, action) => {
+  const updatedIng = updateObject(state.ingredients, {
+    [action.ingredientName]: state.ingredients[action.ingredientName] - 1
+  });
+  return  updateObject(state, {
+    ingredients: updatedIng,
+    totalPrice: state.totalPrice - INGREDIENT_PRICES[action.ingredientName]
+  });
 };
 
 export default reducer;
