@@ -59,3 +59,11 @@ export const auth = (email, password, isSighUp) => {
     
   }
 };
+
+
+export const setAuthRedirect = (path) => {
+    return {
+      type: actionTypes.SET_AUTH_REDIRECT,
+      path
+    }
+};
