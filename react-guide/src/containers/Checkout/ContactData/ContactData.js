@@ -8,6 +8,7 @@ import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
 import withErrorHandler from '../../../hoc/withErrorHandler'
 import * as actions from '../../../store/actions';
+import {updateObject} from '../../../shared/utility';
 
 class ContactData extends Component {
   state = {
@@ -112,15 +113,14 @@ class ContactData extends Component {
   }
   
   inputChangedHandler = (event, id) => {
-    const orderForm = {
-      ...this.state.orderForm
-    };
-    const orderFormElement = {...orderForm[id]}
-    orderFormElement.value = event.target.value;
-    orderFormElement.valid = this.checkValidity(event.target.value, orderFormElement.validation);
-    orderFormElement.touched = true;
-    orderForm[id] = orderFormElement;
-    
+    const orderFormElement = updateObject(this.state.orderForm[id], {
+        value: event.target.value,
+        valid: this.checkValidity(event.target.value, this.state.orderForm[id].validation),
+        touched: true,
+      });
+    const orderForm = updateObject(this.state.orderForm, {
+      [id]: orderFormElement
+    });
     let formIsValid = true;
     for (let key in orderForm) {
       formIsValid = orderForm[key].valid && formIsValid
