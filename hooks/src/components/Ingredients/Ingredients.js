@@ -49,13 +49,22 @@ function Ingredients() {
     }]);
   };
   
+  const removeIngredientHandler = async ingredientId => {
+    await fetch(`https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${ingredientId}.json`, {
+      method: 'DELETE'
+    });
+    setIngredients(prevIngs => {
+      return prevIngs.filter(i => i.id !== ingredientId);
+    })
+  };
+  
   return (
     <div className="App">
       <IngredientForm onAddIngredient={addIngredientHandler}/>
 
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler}/>
-        <IngredientList onRemoveItem={() => {}} ingredients={ingredients}/>
+        <IngredientList onRemoveItem={removeIngredientHandler} ingredients={ingredients}/>
       </section>
     </div>
   );
