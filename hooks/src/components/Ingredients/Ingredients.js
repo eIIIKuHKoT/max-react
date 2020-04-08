@@ -7,7 +7,7 @@ import IngredientList from "./IngredientList";
 function Ingredients() {
   
   const [ingredients, setIngredients] = useState([]);
-  
+  const [isLoading, setLoading] = useState(false);
   // unnecessary logic, ingredients fetches on Search component
   /*useEffect( () => {
     const fetchData = async () => {
@@ -37,12 +37,14 @@ function Ingredients() {
   
   
   const addIngredientHandler = async ingredient => {
+    setLoading(true);
     let response =  await fetch('https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json', {
       method: 'POST',
       body: JSON.stringify(ingredient),
       headers: { 'Content-type':'application/json'}
     });
     response = await response.json();
+    setLoading(false);
     setIngredients(prevIngs => [...prevIngs, {
       id: response.name,
       ...ingredient
@@ -50,9 +52,11 @@ function Ingredients() {
   };
   
   const removeIngredientHandler = async ingredientId => {
+    setLoading(true);
     await fetch(`https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${ingredientId}.json`, {
       method: 'DELETE'
     });
+    setLoading(false);
     setIngredients(prevIngs => {
       return prevIngs.filter(i => i.id !== ingredientId);
     })
@@ -60,8 +64,10 @@ function Ingredients() {
   
   return (
     <div className="App">
-      <IngredientForm onAddIngredient={addIngredientHandler}/>
-
+      <IngredientForm
+        onAddIngredient={addIngredientHandler}
+        loading={isLoading}
+      />
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler}/>
         <IngredientList onRemoveItem={removeIngredientHandler} ingredients={ingredients}/>
