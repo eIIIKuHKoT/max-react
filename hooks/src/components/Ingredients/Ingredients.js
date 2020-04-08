@@ -1,4 +1,4 @@
-import React, {useReducer, useState, useEffect, useCallback} from 'react';
+import React, {useReducer, useState, useEffect, useCallback, useMemo} from 'react';
 
 import IngredientForm from './IngredientForm';
 import Search from './Search';
@@ -53,7 +53,7 @@ function Ingredients() {
   }, []);
   
   
-  const addIngredientHandler = async ingredient => {
+  const addIngredientHandler = useCallback(async ingredient => {
     try {
       dispatchHttp({type: 'SEND'});
       let response = await fetch(
@@ -74,10 +74,9 @@ function Ingredients() {
     } catch (error) {
       dispatchHttp({type: 'ERROR', error: error.message});
     }
-    
-  };
+  }, [])
   
-  const removeIngredientHandler = async id => {
+  const removeIngredientHandler = useCallback(async id => {
     try {
       dispatchHttp({type: 'SEND'});
       await fetch(
@@ -92,10 +91,12 @@ function Ingredients() {
     } catch (error) {
       dispatchHttp({type: 'ERROR', error: error.message});
     }
-  };
+  }, [])
   
   const clearError = () => dispatchHttp({type: 'CLEAR'});
-  
+  const ingredientsList = useMemo(() => {
+    return <IngredientList onRemoveItem={removeIngredientHandler} ingredients={ingredients}/>
+  }, [ingredients])
   return (
     <div className="App">
       {httpState.error && <ErrorModal onClose={clearError}>{httpState.error}</ErrorModal>}
@@ -105,7 +106,7 @@ function Ingredients() {
       />
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler}/>
-        <IngredientList onRemoveItem={removeIngredientHandler} ingredients={ingredients}/>
+        {ingredientsList}
       </section>
     </div>
   );
