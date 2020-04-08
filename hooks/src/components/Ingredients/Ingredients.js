@@ -1,13 +1,26 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useReducer, useState, useEffect, useCallback} from 'react';
 
 import IngredientForm from './IngredientForm';
 import Search from './Search';
 import IngredientList from "./IngredientList";
 import ErrorModal from '../UI/ErrorModal';
 
+const ingredientReducer = (currentIngredients, action) => {
+  switch (action.type) {
+    case 'SET':
+      return action.ingredients;
+    case 'ADD':
+      return [...currentIngredients, action.ingredient]
+    case 'REMOVE':
+      return currentIngredients.filter(i => i.id !== action.id);
+    default:
+      throw new Error(`Invalid action type: ${action.type}`);
+  }
+};
+
 function Ingredients() {
-  
-  const [ingredients, setIngredients] = useState([]);
+  const [ingredients, dispatch] = useReducer(ingredientReducer, []);
+//  const [ingredients, setIngredients] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   // unnecessary logic, ingredients fetches on Search component
@@ -34,7 +47,10 @@ function Ingredients() {
   
   
   const filteredIngredientsHandler = useCallback((ingredients) => {
-    setIngredients(ingredients);
+    dispatch({
+      type: 'SET',
+      ingredients
+    });
   }, []);
   
   
@@ -49,26 +65,30 @@ function Ingredients() {
         });
       response = await response.json();
       setLoading(false);
-      setIngredients(prevIngs => [...prevIngs, {
-        id: response.name,
-        ...ingredient
-      }]);
+      dispatch({
+        type: 'ADD',
+        ingredient: {
+          id: response.name,
+          ...ingredient
+        }
+      })
     } catch (error) {
       setError(error.method)
     }
     
   };
   
-  const removeIngredientHandler = async ingredientId => {
+  const removeIngredientHandler = async id => {
     try {
       setLoading(true);
       await fetch(
-        `https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${ingredientId}.json`, {
+        `https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${id}.json`, {
           method: 'DELETE'
         });
       setLoading(false);
-      setIngredients(prevIngs => {
-        return prevIngs.filter(i => i.id !== ingredientId);
+      dispatch({
+        type: "REMOVE",
+        id: id
       })
     } catch (error) {
       setError(error.message);
