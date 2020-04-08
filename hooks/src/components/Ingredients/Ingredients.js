@@ -18,28 +18,27 @@ const ingredientReducer = (currentIngredients, action) => {
   }
 };
 
+const httpReducer = (httpState, action) => {
+  switch (action.type) {
+    case 'SEND':
+      return {loading: true, error: null,};
+    case 'RESPONSE':
+      return {...httpState, loading: false};
+    case 'ERROR':
+      return {loading: false, error: action.error};
+    case 'CLEAR':
+      return {loading: false, error: null,};
+    default:
+      throw new Error(`Invalid action type: ${action.type}`);
+  }
+};
+
 function Ingredients() {
   const [ingredients, dispatch] = useReducer(ingredientReducer, []);
-//  const [ingredients, setIngredients] = useState([]);
-  const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  // unnecessary logic, ingredients fetches on Search component
-  /*useEffect( () => {
-    const fetchData = async () => {
-      const response = await fetch('https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json');
-      const data = await response.json();
-      const ingredients = [];
-      for (let key in data) {
-        ingredients.push({
-          id: key,
-          ...data[key]
-        })
-      }
-      setIngredients(ingredients);
-    };
-    fetchData();
-    
-  }, []);*/
+  const [httpState, dispatchHttp] = useReducer(httpReducer, {
+    loading: false,
+    error: null,
+  });
   
   useEffect(() => {
     console.log('Component Ingredients rendered', ingredients)
@@ -56,7 +55,7 @@ function Ingredients() {
   
   const addIngredientHandler = async ingredient => {
     try {
-      setLoading(true);
+      dispatchHttp({type: 'SEND'});
       let response = await fetch(
         'https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json', {
           method: 'POST',
@@ -64,7 +63,7 @@ function Ingredients() {
           headers: {'Content-type': 'application/json'}
         });
       response = await response.json();
-      setLoading(false);
+      dispatchHttp({type: 'RESPONSE'});
       dispatch({
         type: 'ADD',
         ingredient: {
@@ -73,40 +72,36 @@ function Ingredients() {
         }
       })
     } catch (error) {
-      setError(error.method)
+      dispatchHttp({type: 'ERROR', error: error.message});
     }
     
   };
   
   const removeIngredientHandler = async id => {
     try {
-      setLoading(true);
+      dispatchHttp({type: 'SEND'});
       await fetch(
         `https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${id}.json`, {
           method: 'DELETE'
         });
-      setLoading(false);
+      dispatchHttp({type: 'RESPONSE'});
       dispatch({
         type: "REMOVE",
         id: id
       })
     } catch (error) {
-      setError(error.message);
+      dispatchHttp({type: 'ERROR', error: error.message});
     }
-    
   };
   
-  const clearError = () => {
-    setError(null);
-    setLoading(false);
-  }
+  const clearError = () => dispatchHttp({type: 'CLEAR'});
   
   return (
     <div className="App">
-      {error && <ErrorModal onClose={clearError}>{error}</ErrorModal>}
+      {httpState.error && <ErrorModal onClose={clearError}>{httpState.error}</ErrorModal>}
       <IngredientForm
         onAddIngredient={addIngredientHandler}
-        loading={isLoading}
+        loading={httpState.loading}
       />
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler}/>
