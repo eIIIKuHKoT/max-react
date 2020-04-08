@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
 import IngredientForm from './IngredientForm';
 import Search from './Search';
@@ -8,18 +8,33 @@ function Ingredients() {
   
   const [ingredients, setIngredients] = useState([]);
   
-  useEffect(async () => {
-    const response = await fetch('https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json');
-    const data = await response.json();
-    const ingredients = [];
-    for (let key in data) {
-      ingredients.push({
-        id: key,
-        ...data[key]
-      })
-    }
+  // unnecessary logic, ingredients fetches on Search component
+  /*useEffect( () => {
+    const fetchData = async () => {
+      const response = await fetch('https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json');
+      const data = await response.json();
+      const ingredients = [];
+      for (let key in data) {
+        ingredients.push({
+          id: key,
+          ...data[key]
+        })
+      }
+      setIngredients(ingredients);
+    };
+    fetchData();
+    
+  }, []);*/
+  
+  useEffect( () => {
+    console.log('Component Ingredients rendered', ingredients)
+  }, [ingredients]);
+  
+  
+  const filteredIngredientsHandler = useCallback((ingredients) => {
     setIngredients(ingredients);
   }, []);
+  
   
   const addIngredientHandler = async ingredient => {
     let response =  await fetch('https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json', {
@@ -39,7 +54,7 @@ function Ingredients() {
       <IngredientForm onAddIngredient={addIngredientHandler}/>
 
       <section>
-        <Search />
+        <Search onLoadIngredients={filteredIngredientsHandler}/>
         <IngredientList onRemoveItem={() => {}} ingredients={ingredients}/>
       </section>
     </div>
