@@ -1,4 +1,4 @@
-import React, {Component, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import Modal from '../components/UI/Modal/Modal';
 import Auxiliary from './Auxiliary';
@@ -13,7 +13,7 @@ const withErrorHandler = (WrapperComponent, axios) => {
       return req;
     });
     const responseInterceptor = axios.interceptors.response.use(res => res, err => {
-      setError({err})
+      setError(err)
     })
     
     useEffect(() => {
@@ -26,7 +26,7 @@ const withErrorHandler = (WrapperComponent, axios) => {
     const errorConfirmedHandler = () => {
       setError(null)
     };
-    
+
     return (
       <Auxiliary>
         <Modal show={error}
