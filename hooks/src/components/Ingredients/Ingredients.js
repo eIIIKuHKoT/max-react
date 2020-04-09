@@ -22,15 +22,15 @@ const ingredientReducer = (currentIngredients, action) => {
 function Ingredients() {
   const [ingredients, dispatch] = useReducer(ingredientReducer, []);
   
-  const {loading, error, data, sendRequest, requestExtra, identifier} = useHttp();
+  const {loading, error, data, sendRequest, requestExtra, identifier, clear} = useHttp();
   
   useEffect(() => {
-    if(!loading && !error && identifier === 'REMOVE_INGREDIENT'){
+    if (!loading && !error && identifier === 'REMOVE_INGREDIENT') {
       dispatch({
         type: 'REMOVE',
         id: requestExtra
       })
-    } else if(!error && !loading && identifier === 'ADD_INGREDIENT'){
+    } else if (!error && !loading && identifier === 'ADD_INGREDIENT') {
       dispatch({
         type: 'ADD',
         ingredient: {id: data.name, ...requestExtra}
@@ -50,15 +50,12 @@ function Ingredients() {
   const addIngredientHandler = useCallback(async ingredient => {
     sendRequest(`https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json`, 'POST',
       JSON.stringify(ingredient), ingredient, 'ADD_INGREDIENT')
-  }, [])
+  }, [sendRequest])
   
   const removeIngredientHandler = useCallback(id => {
     sendRequest(`https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${id}.json`,
       'DELETE', null, id, 'REMOVE_INGREDIENT')
   }, [sendRequest])
-  
-  const clearError = () => {
-  }//dispatchHttp({type: 'CLEAR'});
   
   const ingredientsList = useMemo(() => {
     return <IngredientList onRemoveItem={removeIngredientHandler} ingredients={ingredients}/>
@@ -66,7 +63,7 @@ function Ingredients() {
   
   return (
     <div className="App">
-      {error && <ErrorModal onClose={clearError}>{error}</ErrorModal>}
+      {error && <ErrorModal onClose={clear}>{error}</ErrorModal>}
       <IngredientForm
         onAddIngredient={addIngredientHandler}
         loading={loading}
