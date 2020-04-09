@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import {connect} from "react-redux";
 
 import Auxiliary from '../../hoc/Auxiliary';
@@ -9,12 +9,12 @@ import SideDrawer from '../../components/Navigation/SideDrawer/SideDrawer';
 const Layout = props => {
   const [showSideDrawer, setShowSideDrawer] = useState(false)
   
-  const sideDrawerClosedHandler = () => {
+  const sideDrawerClosedHandler = useCallback(() => {
     setShowSideDrawer(false);
-  };
-  const sideDrawerToggleHandler = () => {
+  }, []);
+  const sideDrawerToggleHandler = useCallback(() => {
     setShowSideDrawer((prevVal) => !prevVal);
-  };
+  }, [])
   
   return (
     <Auxiliary>
