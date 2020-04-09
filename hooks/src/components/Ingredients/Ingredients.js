@@ -4,6 +4,7 @@ import IngredientForm from './IngredientForm';
 import Search from './Search';
 import IngredientList from "./IngredientList";
 import ErrorModal from '../UI/ErrorModal';
+import useHttp from '../../hooks/http';
 
 const ingredientReducer = (currentIngredients, action) => {
   switch (action.type) {
@@ -18,31 +19,24 @@ const ingredientReducer = (currentIngredients, action) => {
   }
 };
 
-const httpReducer = (httpState, action) => {
-  switch (action.type) {
-    case 'SEND':
-      return {loading: true, error: null,};
-    case 'RESPONSE':
-      return {...httpState, loading: false};
-    case 'ERROR':
-      return {loading: false, error: action.error};
-    case 'CLEAR':
-      return {loading: false, error: null,};
-    default:
-      throw new Error(`Invalid action type: ${action.type}`);
-  }
-};
-
 function Ingredients() {
   const [ingredients, dispatch] = useReducer(ingredientReducer, []);
-  const [httpState, dispatchHttp] = useReducer(httpReducer, {
-    loading: false,
-    error: null,
-  });
+  
+  const {loading, error, data, sendRequest, requestExtra, identifier} = useHttp();
   
   useEffect(() => {
-    console.log('Component Ingredients rendered', ingredients)
-  }, [ingredients]);
+    if(!loading && !error && identifier === 'REMOVE_INGREDIENT'){
+      dispatch({
+        type: 'REMOVE',
+        id: requestExtra
+      })
+    } else if(!error && !loading && identifier === 'ADD_INGREDIENT'){
+      dispatch({
+        type: 'ADD',
+        ingredient: {id: data.name, ...requestExtra}
+      })
+    }
+  }, [data, requestExtra, identifier, loading, !error]);
   
   
   const filteredIngredientsHandler = useCallback((ingredients) => {
@@ -54,55 +48,28 @@ function Ingredients() {
   
   
   const addIngredientHandler = useCallback(async ingredient => {
-    try {
-      dispatchHttp({type: 'SEND'});
-      let response = await fetch(
-        'https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json', {
-          method: 'POST',
-          body: JSON.stringify(ingredient),
-          headers: {'Content-type': 'application/json'}
-        });
-      response = await response.json();
-      dispatchHttp({type: 'RESPONSE'});
-      dispatch({
-        type: 'ADD',
-        ingredient: {
-          id: response.name,
-          ...ingredient
-        }
-      })
-    } catch (error) {
-      dispatchHttp({type: 'ERROR', error: error.message});
-    }
+    sendRequest(`https://burger-builder-42c71.firebaseio.com/ingredients-hooks.json`, 'POST',
+      JSON.stringify(ingredient), ingredient, 'ADD_INGREDIENT')
   }, [])
   
-  const removeIngredientHandler = useCallback(async id => {
-    try {
-      dispatchHttp({type: 'SEND'});
-      await fetch(
-        `https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${id}.json`, {
-          method: 'DELETE'
-        });
-      dispatchHttp({type: 'RESPONSE'});
-      dispatch({
-        type: "REMOVE",
-        id: id
-      })
-    } catch (error) {
-      dispatchHttp({type: 'ERROR', error: error.message});
-    }
-  }, [])
+  const removeIngredientHandler = useCallback(id => {
+    sendRequest(`https://burger-builder-42c71.firebaseio.com/ingredients-hooks/${id}.json`,
+      'DELETE', null, id, 'REMOVE_INGREDIENT')
+  }, [sendRequest])
   
-  const clearError = () => dispatchHttp({type: 'CLEAR'});
+  const clearError = () => {
+  }//dispatchHttp({type: 'CLEAR'});
+  
   const ingredientsList = useMemo(() => {
     return <IngredientList onRemoveItem={removeIngredientHandler} ingredients={ingredients}/>
   }, [ingredients])
+  
   return (
     <div className="App">
-      {httpState.error && <ErrorModal onClose={clearError}>{httpState.error}</ErrorModal>}
+      {error && <ErrorModal onClose={clearError}>{error}</ErrorModal>}
       <IngredientForm
         onAddIngredient={addIngredientHandler}
-        loading={httpState.loading}
+        loading={loading}
       />
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler}/>
