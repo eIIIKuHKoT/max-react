@@ -12,7 +12,7 @@ import Spinner from "../../components/UI/Spinner/Spinner";
 
 import axios from "../../axios-orders";
 
-export const BurgerBuilder = (props) => {
+export const BurgerBuilder = ({ onInitIngredients, ...props }) => {
   const [purchasing, setPurchasing] = useState(false);
 
   const updatePurchaseState = (ingredients) => {
@@ -45,8 +45,8 @@ export const BurgerBuilder = (props) => {
   };
 
   useEffect(() => {
-    props.onInitIngredients();
-  }, []);
+    onInitIngredients();
+  }, [onInitIngredients]);
 
   let orderSummary = null;
   let burger = props.error ? (

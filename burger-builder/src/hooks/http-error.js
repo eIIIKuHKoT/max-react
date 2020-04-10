@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export default (axios) => {
   const [error, setError] = useState(null);
@@ -19,7 +19,12 @@ export default (axios) => {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [requestInterceptor, responseInterceptor]);
+  }, [
+    requestInterceptor,
+    responseInterceptor,
+    axios.interceptors.request,
+    axios.interceptors.response,
+  ]);
 
   const errorConfirmedHandler = () => {
     setError(null);

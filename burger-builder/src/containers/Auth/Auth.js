@@ -9,7 +9,12 @@ import * as actions from "../../store/actions";
 import classes from "./Auth.module.css";
 import { updateObject, checkValidity } from "../../shared/utility";
 
-const Auth = (props) => {
+const Auth = ({
+  buildingBurger,
+  authRedirectPath,
+  onSetAuthRedirectPath,
+  ...props
+}) => {
   const [controls, setControls] = useState({
     email: {
       elementType: "input",
@@ -39,7 +44,6 @@ const Auth = (props) => {
       touched: false,
     },
   });
-  const [formIsValid, setFormValid] = useState(false);
   const [isSignUp, setIsSignUp] = useState(true);
 
   const switchAuthModeHandler = () => {
@@ -66,10 +70,10 @@ const Auth = (props) => {
   };
 
   useEffect(() => {
-    if (!props.buildingBurger && props.authRedirectPath !== "/") {
-      props.onSetAuthRedirectPath();
+    if (!buildingBurger && authRedirectPath !== "/") {
+      onSetAuthRedirectPath();
     }
-  }, []);
+  }, [buildingBurger, authRedirectPath, onSetAuthRedirectPath]);
 
   const formElements = [];
   for (let key in controls) {
